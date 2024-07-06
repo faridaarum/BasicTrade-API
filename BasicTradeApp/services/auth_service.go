@@ -7,7 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var jwtSecret = []byte("your_secret_key")
+var jwtSecret = []byte("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIiLCJleHAiOjE3MjAzMzg1Njl9.7vQritH9bmac6849YkDPhgLJkU1b28C9q_lXnQGYZb8")
 
 type Claims struct {
 	Username string `json:"username"`
