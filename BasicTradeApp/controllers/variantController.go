@@ -7,12 +7,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func CreateVariant(c *gin.Context) {
 	var input struct {
-		Name      string `json:"name" binding:"required"`
-		ProductID uint   `json:"product_id" binding:"required"`
+		Name      string    `json:"name" binding:"required"`
+		ProductID uuid.UUID `json:"product_id" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -21,7 +22,7 @@ func CreateVariant(c *gin.Context) {
 	}
 
 	var product models.Product
-	if err := config.DB.First(&product, input.ProductID).Error; err != nil {
+	if err := config.DB.First(&product, "id = ?", input.ProductID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 		return
 	}
@@ -53,7 +54,14 @@ func GetVariants(c *gin.Context) {
 
 func GetVariantByID(c *gin.Context) {
 	var variant models.Variant
-	if err := config.DB.First(&variant, c.Param("id")).Error; err != nil {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format"})
+		return
+	}
+
+	if err := config.DB.First(&variant, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Variant not found"})
 		return
 	}
@@ -72,13 +80,20 @@ func UpdateVariant(c *gin.Context) {
 	}
 
 	var variant models.Variant
-	if err := config.DB.First(&variant, c.Param("id")).Error; err != nil {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format"})
+		return
+	}
+
+	if err := config.DB.First(&variant, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Variant not found"})
 		return
 	}
 
 	var product models.Product
-	if err := config.DB.First(&product, variant.ProductID).Error; err != nil {
+	if err := config.DB.First(&product, "id = ?", variant.ProductID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 		return
 	}
@@ -103,13 +118,20 @@ func UpdateVariant(c *gin.Context) {
 
 func DeleteVariant(c *gin.Context) {
 	var variant models.Variant
-	if err := config.DB.First(&variant, c.Param("id")).Error; err != nil {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format"})
+		return
+	}
+
+	if err := config.DB.First(&variant, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Variant not found"})
 		return
 	}
 
 	var product models.Product
-	if err := config.DB.First(&product, variant.ProductID).Error; err != nil {
+	if err := config.DB.First(&product, "id = ?", variant.ProductID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 		return
 	}
