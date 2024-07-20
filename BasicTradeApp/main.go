@@ -36,7 +36,7 @@ func main() {
 	// Get port from environment variable
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // Default port if not specified
+		port = "80" // Default port if not specified
 	}
 
 	// Run the server

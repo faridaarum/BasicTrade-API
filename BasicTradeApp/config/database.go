@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net"
 	"os"
 
 	"gorm.io/driver/mysql"
@@ -22,6 +23,13 @@ func ConnectDB() {
 	fmt.Println("DB_HOST:", dbHost)
 	fmt.Println("DB_PORT:", dbPort)
 	fmt.Println("DB_NAME:", dbName)
+
+	// Check DNS resolution
+	ips, err := net.LookupIP(dbHost)
+	if err != nil {
+		panic("DNS lookup failed: " + err.Error())
+	}
+	fmt.Println("Resolved IP addresses for", dbHost, ":", ips)
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
