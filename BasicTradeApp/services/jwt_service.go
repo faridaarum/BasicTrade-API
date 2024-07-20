@@ -29,7 +29,7 @@ func ExtractAdminID(c *gin.Context) (uint, error) {
 	}
 
 	var admin models.Admin
-	if err := config.DB.Where("username = ?", claims.Username).First(&admin).Error; err != nil {
+	if err := config.DB.Where("email = ?", claims.Email).First(&admin).Error; err != nil {
 		return 0, errors.New("user not found")
 	}
 

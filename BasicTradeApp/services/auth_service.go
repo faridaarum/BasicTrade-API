@@ -5,26 +5,76 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 )
 
-var jwtSecret = []byte("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIiLCJleHAiOjE3MjAzMzg1Njl9.7vQritH9bmac6849YkDPhgLJkU1b28C9q_lXnQGYZb8")
+var jwtSecret = []byte("your_secret_key")
+var refreshSecret = []byte("your_refresh_secret_key")
 
 type Claims struct {
-	Username string `json:"username"`
+	AdminID uint   `json:"admin_id"`
+	Email   string `json:"email"`
 	jwt.StandardClaims
 }
 
-func GenerateJWT(username string) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
-	claims := &Claims{
-		Username: username,
+type TokenDetails struct {
+	AccessToken  string
+	RefreshToken string
+	AccessUuid   string
+	RefreshUuid  string
+	AtExpires    int64
+	RtExpires    int64
+}
+
+func GenerateJWT(adminID uint, email string) (*TokenDetails, error) {
+	td := &TokenDetails{}
+	td.AtExpires = time.Now().Add(15 * time.Minute).Unix()
+	td.AccessUuid = uuid.New().String()
+
+	td.RtExpires = time.Now().Add(7 * 24 * time.Hour).Unix()
+	td.RefreshUuid = uuid.New().String()
+
+	atClaims := &Claims{
+		AdminID: adminID,
+		Email:   email,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+			ExpiresAt: td.AtExpires,
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	rtClaims := &Claims{
+		AdminID: adminID,
+		Email:   email,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: td.RtExpires,
+		},
+	}
+
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
+	td.AccessToken, _ = accessToken.SignedString(jwtSecret)
+
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
+	td.RefreshToken, _ = refreshToken.SignedString(refreshSecret)
+
+	return td, nil
+}
+
+func RefreshToken(refreshTokenString string) (*TokenDetails, error) {
+	claims := &Claims{}
+
+	refreshToken, err := jwt.ParseWithClaims(refreshTokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return refreshSecret, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !refreshToken.Valid {
+		return nil, errors.New("invalid refresh token")
+	}
+
+	return GenerateJWT(claims.AdminID, claims.Email)
 }
 
 func ValidateToken(tokenString string) (*Claims, error) {

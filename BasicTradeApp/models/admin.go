@@ -1,9 +1,15 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
 type Admin struct {
-	gorm.Model
-	Username string `gorm:"unique;not null" json:"username"`
-	Password string `gorm:"not null" json:"-"`
+	ID        uint      `gorm:"primaryKey"`
+	UUID      string    `gorm:"type:char(36);not null"`
+	Name      string    `gorm:"type:varchar(100);not null"`
+	Email     string    `gorm:"type:varchar(100);unique;not null"`
+	Password  string    `gorm:"type:varchar(255);not null"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
