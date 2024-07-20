@@ -14,8 +14,8 @@ var DB *gorm.DB
 func ConnectDB() {
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
+	dbHost := "viaduct.proxy.rlwy.net"
+	dbPort := "45408"
 	dbName := os.Getenv("DB_NAME")
 
 	fmt.Println("DB_USER:", dbUser)
