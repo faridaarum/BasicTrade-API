@@ -11,6 +11,6 @@ type Product struct {
 	ImageURL  string    `gorm:"type:varchar(255)"`
 	AdminID   uint      `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	UpdateAt  time.Time `gorm:"autoUpdateTime"`
 	Variants  []Variant `gorm:"foreignKey:ProductID"`
 }

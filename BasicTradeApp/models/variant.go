@@ -11,5 +11,5 @@ type Variant struct {
 	Quantity    int       `gorm:"not null"`
 	ProductID   uint      `gorm:"not null"`
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
-	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
+	UpdateAt    time.Time `gorm:"autoUpdateTime"`
 }
